@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+  <title>SSH Terminal</title>
+  <link rel="stylesheet" href="xterm.css" />
+  <script src="socket.io/socket.io.js"></script>
+  <script src="xterm.js"></script>
+  <script>
+    window.addEventListener('load', function () {
+      const terminal = document.getElementById('terminal');
+      const client = new Terminal({ cursorBlink: true });
+      client.open(terminal);
+      const socket = io.connect();
+      client.onData(function (data) {
+        console.log(data);
+        socket.emit('client', data);
+      });
+      socket.on('connect', function () {
+        socket.on('server', function (data) {
+          client.write(data);
+        });
+        socket.on('disconnect', function () {
+          client.write('\nDisconnected from server, please connect back\r\n\n');
+          window.location.reload();
+        });
+      });
+    }, false);
+  </script>
+  <style>
+    body {
+      color: #000;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    #terminal {
+      width: auto;
+      height: auto;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="terminal"></div>
+</body>
+
+</html>
